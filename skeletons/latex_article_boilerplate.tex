@@ -1,0 +1,142 @@
+
+
+\documentclass[12pt]{report}
+\usepackage{amsthm,latexsym,amssymb,amsmath, amsfonts,mathtools}
+\usepackage[hmargin=0.5in, vmargin =0.5in]{geometry}
+\usepackage{placeins}
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\linespread{1.5}
+\usepackage{hyperref}
+\usepackage{framed}
+\usepackage{mdframed}
+%\usepackage{mcode}
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{xltabular}
+\usepackage{natbib}
+\usepackage{pdfpages}
+ \newcommand{\cx}{\tilde{x}}
+\newcommand{\cy}{\tilde{y}}
+\newcommand{\ct}{\tilde{t}}
+\newcommand{\cf}{\tilde{f}(x)}
+\newcommand{\f}{f(x)}
+\newcommand{\fcx}{f(\tilde{x})}
+\newcommand{\nip}{\frac{\|\cx - x\|_X}{\|x\|_X}}
+\newcommand{\fwrderr}{\frac{\| \cf - \f \|}{\|\f\|}}
+\newcommand{\Q}{\hat{Q}}
+\newcommand{\R}{\hat{R}}
+\newcommand{\w}{\backslash w}
+\newcommand{\Qa}{\hat{Q}^{\ast}}
+\newcommand{\Ra}{\hat{R}^{\ast}}
+\newcommand{\Aa}{A^{\ast}}
+\newcommand{\Ua}{U^{\ast}}
+\usepackage{bm}
+\newcommand{\Va}{V^{\ast}}
+\newcommand{\Sa}{\Sigma^{\ast}}
+\renewcommand{\S}{\Sigma}
+\newcommand{\inv}[1]{#1^{-1}}
+\newcommand{\invb}[1]{(#1)^{-1}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\normal}[1]{{#1}^{\ast}{#1}}
+\newcommand{\code}[1]{\verb~ #1 ~}
+
+\DeclareMathOperator{\Mat}{Mat}
+\newcommand{\diagentry}[1]{\mathmakebox[1.8em]{#1}}
+\newcommand{\xddots}{%
+  \raise 4pt \hbox {.}
+  \mkern 6mu
+  \raise 1pt \hbox {.}
+  \mkern 6mu
+  \raise -2pt \hbox {.}
+}
+
+\newtheorem{theorem}{Theorem}
+
+\makeatletter
+\renewcommand*\env@matrix[1][*\c@MaxMatrixCols c]{%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{#1}}
+\makeatother
+
+%%%%%% begin: absolutely no page break:
+\newenvironment{absolutelynopagebreak}
+  {\par\nobreak\vfil\penalty0\vfilneg
+   \vtop\bgroup}
+  {\par\xdef\tpd{\the\prevdepth}\egroup
+   \prevdepth=\tpd}
+%%%%% end:   absolutely no page break:
+
+%%%%%%%%%%%%  begin: typesetting row vectors and column vectors
+\newcount\colveccount
+\newcommand*\colvec[1]{
+        \global\colveccount#1
+        \begin{bmatrix}
+        \colvecnext
+}
+\def\colvecnext#1{
+        #1
+        \global\advance\colveccount-1
+        \ifnum\colveccount>0
+                \\
+                \expandafter\colvecnext
+        \else
+                \end{bmatrix}
+        \fi
+}
+
+\newtoks\rowvectoks
+\newcommand{\rowvec}[2]{%
+  \rowvectoks={#2}\count255=#1\relax
+  \advance\count255 by -1
+  \rowvecnexta}
+\newcommand{\rowvecnexta}{%
+  \ifnum\count255>0
+    \expandafter\rowvecnextb
+  \else
+    \begin{bmatrix}\the\rowvectoks\end{bmatrix}
+  \fi}
+\newcommand\rowvecnextb[1]{%
+    \rowvectoks=\expandafter{\the\rowvectoks&#1}%
+    \advance\count255 by -1
+    \rowvecnexta}
+%%%%%%%%%%%%  end: typesetting row vectors and column vectors
+
+\usepackage{xfrac}
+
+\newcommand{\pa}[1]{\left(#1\right)} % encloses the argument using stretchable parentheses
+\newcommand{\bra}[1]{\left[#1\right]} % encloses the argument using stretchable square brackets
+
+% matrices for displayed expressions
+\newcommand{\mat}[1]{\begin{matrix}#1\end{matrix}} % no delimiters
+\newcommand{\pmat}[1]{\pa{\mat{#1}}} % parentheses as delimiters
+\newcommand{\bmat}[1]{\bra{\mat{#1}}} % square brackets as delimiters
+
+% variations of \frac and \sfrac
+\newcommand{\pfrac}[2]{\pa{\frac{#1}{#2}}} % enclosed in parentheses
+\newcommand{\bfrac}[2]{\bra{\frac{#1}{#2}}} % enclosed in square brackets
+\newcommand{\psfrac}[2]{\pa{\sfrac{#1}{#2}}} % sfrac enclosed in parentheses
+\newcommand{\bsfrac}[2]{\bra{\sfrac{#1}{#2}}} % sfrac enclosed in square brackets
+
+% for small matrices to be used in in-line expressions
+\newcommand{\sm}[1]{\begin{smallmatrix}#1\end{smallmatrix}} % no delimiters
+\newcommand{\psm}[1]{\pa{\sm{#1}}} % parentheses as delimiters
+\newcommand{\bsm}[1]{\bra{\sm{#1}}} % square brackets as delimiters
+
+\newcommand{\kp}{\kappa}
+
+\newcolumntype{b}{X}
+\newcolumntype{m}{>{\hsize=0.5\hsize}X}
+\newcolumntype{s}{>{\hsize=0.2\hsize}X}
+
+
+\begin{document}
+
+
+
+
+
+
+\bibliographystyle{plainnat}
+\bibliography{bibfile.bib}
+\end{document}
