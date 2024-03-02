@@ -1,11 +1,13 @@
 set number
 set relativenumber
+set nocompatible
+filetype plugin on 
+
 " copy indentation of current line to next line
 set autoindent
 set mouse=a
 " keep changes in memory, Changes that you made will not be discarded, nor will they be written to disk. They will be "saved in the buffer", to be handled later on.
 set hidden
-filetype on
 au BufNewFile,BufRead *.py set sts=4 | set ts=4 | set sw=4 | set smarttab | set expandtab
 au BufNewFile,BufRead *.tex nnoremap <leader>a :r!append_lastscreenshot<CR>
 "" open terminal in bottom buffer
@@ -26,17 +28,48 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-h> <C-w>h
 
+"curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+" https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
+call plug#begin(stdpath('data') . '/plugged')
+" Plugins for using tags
+function! BuildVimTags(info)
+  if a:info.status != 'installed'
+    return 0
+  endif
+  brew install universal-ctags
+endfunction
 
-call plug#begin()
 Plug 'neovim/nvim-lspconfig'
 Plug 'echasnovski/mini.nvim', { 'branch': 'stable' }
 Plug 'lervag/vimtex'
+Plug 'vimwiki/vimwiki'
+"let g:vimwiki_list = [{'path': expand('$HOME/learning/vimwiki/'), 'syntax': 'markdown', 'ext': '.md'}]
+let g:vimwiki_list = [{'path': expand('$HOME/learning/vimwiki/'),
+  \ 'path_html': '~/learning/vimwiki/html/',
+  \ 'syntax': 'markdown',
+  \ 'ext': '.md',
+  \ 'custom_wiki2html': expand('$HOME/bin/wiki2html_gpt.sh')},
+  \ {'path': expand('$HOME/prepos/planning/_posts/'),
+  \ 'path_html': '~/learning/vimwiki/html/',
+  \ 'syntax': 'markdown',
+  \ 'ext': '.md',
+  \ 'custom_wiki2html': expand('$HOME/bin/wiki2html.sh')}]
+Plug 'mzlogin/vim-markdown-toc'
 Plug 'chrisbra/csv.vim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'nvim-treesitter/nvim-treesitter'
+" Plugins for nodejs
+Plug 'ternjs/tern_for_vim', {'do': 'npm install'}
+Plug 'moll/vim-node'
+
+" Plugins for TypeScript
+Plug 'Quramy/tsuquyomi', {'do': 'npm install -g typescript'}
+let g:tsuquyomi_disable_quickfix=1
+"let g:syntastic_typescript_checkers=['tsuquyomi']
+Plug 'leafgarland/typescript-vim'
 call plug#end()
 
 :lua require'lspconfig'.pyright.setup{}
