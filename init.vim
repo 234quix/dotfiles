@@ -6,27 +6,17 @@ filetype plugin on
 " copy indentation of current line to next line
 set autoindent
 set mouse=a
+let mapleader = ";"
+nmap <leader>ll :VimtexCompile<CR>
+nmap <leader>lv :VimtexView<CR>
+
+" case insensitive search 
+set ignorecase
 " keep changes in memory, Changes that you made will not be discarded, nor will they be written to disk. They will be "saved in the buffer", to be handled later on.
 set hidden
 au BufNewFile,BufRead *.py set sts=4 | set ts=4 | set sw=4 | set smarttab | set expandtab
 au BufNewFile,BufRead *.tex nnoremap <leader>a :r!append_lastscreenshot<CR>
-"" open terminal in bottom buffer
-nnoremap <space><space> :botright split term://zsh<CR>:startinsert<CR>
-"" close the terminal (but keep contents)
-tnoremap <space><space> <C-\><C-N>:stopinsert<CR>:close<CR>
-"" close the terminal and kill it; k is for kill
-tnoremap <space>k <C-\><C-N>:q!<CR>
-"" move cursor to window above the terminal 
-tnoremap <C-k> <C-\><C-N><C-w>k
-"" go into insert mode in terminal
-tnoremap ii :startinsert<CR>
-"" toggle between 2 buffers:
-nnoremap <leader>b <C-^>
-"" move cursor between windows using control and arrow keys
-nnoremap <silent> <C-l> <C-w>l
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-h> <C-w>h
+au BufRead,BufNewFile *.md setlocal textwidth=110
 
 "curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 " https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -49,11 +39,13 @@ let g:vimwiki_list = [{'path': expand('$HOME/learning/vimwiki/'),
   \ 'path_html': '~/learning/vimwiki/html/',
   \ 'syntax': 'markdown',
   \ 'ext': '.md',
-  \ 'custom_wiki2html': expand('$HOME/bin/wiki2html_gpt.sh')},
+  \ 'html_ext': '.html',
+  \ 'custom_wiki2html': expand('$HOME/bin/wiki2html.sh')},
   \ {'path': expand('$HOME/prepos/planning/_posts/'),
   \ 'path_html': '~/learning/vimwiki/html/',
   \ 'syntax': 'markdown',
   \ 'ext': '.md',
+  \ 'html_ext': '.html',
   \ 'custom_wiki2html': expand('$HOME/bin/wiki2html.sh')}]
 Plug 'mzlogin/vim-markdown-toc'
 Plug 'chrisbra/csv.vim'
@@ -70,10 +62,54 @@ Plug 'Quramy/tsuquyomi', {'do': 'npm install -g typescript'}
 let g:tsuquyomi_disable_quickfix=1
 "let g:syntastic_typescript_checkers=['tsuquyomi']
 Plug 'leafgarland/typescript-vim'
+" Plugin for commenting sections 
+Plug 'b3nj5m1n/kommentary'
 call plug#end()
+
+"" Key mappings
+" fzf
+" " use ctrl s to show Files etc
+nnoremap <silent> <C-s> :Files<CR>
+nnoremap <silent> <C-g> :GFiles<CR>
+nnoremap <silent> <S-s> :Buffers<CR>
+" " use ctrl f to search for text
+nnoremap <C-f> :Rg! 
+
+"" open terminal in bottom buffer
+nnoremap <space><space> :botright split term://zsh<CR>:startinsert<CR>
+"" close the terminal (but keep contents)
+tnoremap <space><space> <C-\><C-N>:stopinsert<CR>:close<CR>
+"" close the terminal and kill it; k is for kill
+tnoremap <space>k <C-\><C-N>:q!<CR>
+"" move cursor to window above the terminal 
+tnoremap <C-k> <C-\><C-N><C-w>k
+"" go into insert mode in terminal
+tnoremap ii :startinsert<CR>
+"" go back to normal mode in terminal
+tnoremap <ESC> <C-\><C-n>
+"" toggle between 2 buffers:
+nnoremap <leader>b <C-^>
+"" move cursor between windows using control and arrow keys
+nnoremap <silent> <C-l> <C-w>l
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-h> <C-w>h
+"" copy absolute path to current buffer to system clipboard 
+nnoremap <C-a> :let @+=expand('%:p')<CR>
+
+
+"" vim wiki - ctrl - enter to open link in vertical split:
+nnoremap <C><CR> :VimwikiVSplitLink<CR>
+
+" easier moving of code blocks
+" Try to go into visual mode (v), thenselect several lines of code here and
+" then press ``>`` several times.
+vnoremap < <gv  " better indentation
+vnoremap > >gv  " better indentation
 
 :lua require'lspconfig'.pyright.setup{}
 :lua require("mini.completion").setup()
+:lua require'lspconfig'.tsserver.setup {}
 """"##### vimtex config
 
 " " This enables Vim's and neovim's syntax-related features. Without this, some
@@ -139,7 +175,7 @@ require'nvim-treesitter.configs'.setup {
 
   -- Automatically install missing parsers when entering buffer
   -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-  auto_install = true,
+  auto_install = false,
 
   -- List of parsers to ignore installing (for "all")
   -- ignore_install = { "javascript" },
