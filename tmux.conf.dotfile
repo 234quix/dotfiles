@@ -1,0 +1,74 @@
+# Use Alt-arrow keys without prefix key to switch panes
+bind -n M-Left select-pane -L
+bind -n M-Right select-pane -R
+bind -n M-Up select-pane -U
+bind -n M-Down select-pane -D
+
+# Use Shift-arrow keys without prefix key to switch tabs
+bind -n S-Left previous-window
+bind -n S-Right next-window
+
+# Use ALT-Shift keys to resize pane
+bind-key -n M-S-Left resize-pane -L
+bind-key -n M-S-Right resize-pane -R
+bind-key -n M-S-Up resize-pane -U
+bind-key -n M-S-Down resize-pane -D
+
+# Use vim like split commands
+bind-key v split-window -h -c "#{pane_current_path}"
+bind-key s split-window -v -c "#{pane_current_path}"
+
+# Reload tmux config
+bind r source-file ~/.tmux.conf
+
+# No delay for escape key press
+set -s escape-time 0
+
+# set vi key bindings
+set-window-option -g mode-keys vi
+
+# to open new windows in the current path
+bind c new-window -c "#{pane_current_path}"
+
+# Enable mouse mode
+set -g mouse on
+
+# Enable bracketed paste mode
+set -g @bracketed-paste true
+
+# Use vi keys in copy mode
+setw -g mode-keys vi
+
+# Bind keys for copying to system clipboard
+
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -selection clipboard"
+bind-key -T copy-mode-vi v send -X begin-selection
+
+
+# fix MacOSX clipboard integration
+# set-option -g default-command "reattach-to-user-namespace -l zsh"
+
+# MacOSX keyboard integration
+set-window-option -g xterm-keys on
+
+#### TPM (TMUX plugin manager)
+# git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+# List of plugins
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-yank'
+set -g @resurrect-strategy-vim 'session'
+
+set -g @plugin 'seebi/tmux-colors-solarized'
+set -g @colors-solarized '256'
+
+
+# Other examples:
+# set -g @plugin 'github_username/plugin_name'
+# set -g @plugin 'git@github.com/user/plugin'
+# set -g @plugin 'git@bitbucket.com/user/plugin'
+
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+run '~/.tmux/plugins/tpm/tpm'
+##################################################################
