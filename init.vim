@@ -7,6 +7,7 @@ filetype plugin on
 set autoindent
 set mouse=a
 let mapleader = ";"
+"noremap <C-d> <C-v>
 nmap <leader>ll :VimtexCompile<CR>
 nmap <leader>lv :VimtexView<CR>
 
@@ -17,6 +18,9 @@ set hidden
 au BufNewFile,BufRead *.py set sts=4 | set ts=4 | set sw=4 | set smarttab | set expandtab
 au BufNewFile,BufRead *.tex nnoremap <leader>a :r!append_lastscreenshot<CR>
 au BufRead,BufNewFile *.md setlocal textwidth=110
+
+" Set Vim's working directory to the directory of the current file
+autocmd BufEnter * silent! lcd %:p:h
 
 "curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 " https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -63,9 +67,10 @@ let g:tsuquyomi_disable_quickfix=1
 "let g:syntastic_typescript_checkers=['tsuquyomi']
 Plug 'leafgarland/typescript-vim'
 " Plugin for commenting sections 
-Plug 'b3nj5m1n/kommentary'
+Plug 'numToStr/Comment.nvim'
 call plug#end()
 
+lua require('Comment').setup()
 "" Key mappings
 " fzf
 " " use ctrl s to show Files etc
@@ -79,6 +84,7 @@ nnoremap <C-f> :Rg!
 nnoremap <space><space> :botright split term://zsh<CR>:startinsert<CR>
 "" close the terminal (but keep contents)
 tnoremap <space><space> <C-\><C-N>:stopinsert<CR>:close<CR>
+tnoremap <space><CR> <C-\><C-N>:stopinsert<CR>:close<CR>
 "" close the terminal and kill it; k is for kill
 tnoremap <space>k <C-\><C-N>:q!<CR>
 "" move cursor to window above the terminal 
@@ -100,6 +106,13 @@ nnoremap <C-a> :let @+=expand('%:p')<CR>
 
 "" vim wiki - ctrl - enter to open link in vertical split:
 nnoremap <C><CR> :VimwikiVSplitLink<CR>
+
+"" fzf.vim use ctrl-r instead of ctrl-v to open file in vertical split
+" let g:fzf_action = {
+" \ 'ctrl-c': 'vsplit',
+" \ 'ctrl-x': 'split',
+" \ 'ctrl-t': 'tabedit'
+" \ }
 
 " easier moving of code blocks
 " Try to go into visual mode (v), thenselect several lines of code here and
