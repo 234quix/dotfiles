@@ -16,11 +16,34 @@ set ignorecase
 " keep changes in memory, Changes that you made will not be discarded, nor will they be written to disk. They will be "saved in the buffer", to be handled later on.
 set hidden
 au BufNewFile,BufRead *.py set sts=4 | set ts=4 | set sw=4 | set smarttab | set expandtab
+"au BufNewFile,BufRead *.md set sts=4 | set ts=4 | set sw=4 | set smarttab | set expandtab
 au BufNewFile,BufRead *.tex nnoremap <leader>a :r!append_lastscreenshot<CR>
 au BufRead,BufNewFile *.md setlocal textwidth=110
+autocmd BufRead,BufNewFile *.ipynb setlocal filetype=ipynb
+autocmd BufRead,BufNewFile *.md setlocal filetype=md
 
+"***************************************************************************
+" open ipynb files as markdown files and sync the changes back to ipynb when
+" saving 
+" Automatically pair .ipynb with .md when opening in neovim. 
+
+" To install Jupytext, run: !pip install jupytext
+autocmd BufReadPost,BufEnter *.ipynb :silent !jupytext --set-formats ipynb,md:markdown %
+autocmd BufReadPost *.ipynb :silent edit %:r.md | setlocal filetype=markdown
+" Mapping to switch to the corresponding .md file
+" jump to corresponding md file from a ipynb file
+autocmd FileType ipynb nnoremap <buffer> <leader>j :edit %:r.md<CR>
+" jump to corresponding ipynb file from an md file
+autocmd FileType md nnoremap <buffer> <leader>j :edit %:r.ipynb<CR>
+" Sync changes from .md back to .ipynb when saving
+autocmd BufWritePost *.md :silent !jupytext --sync %
+
+" (Optional) Automatically remove the .md file when closing the .ipynb file
+"autocmd BufWinLeave *.ipynb :execute 'silent !rm -f ' . expand('%:r') . '.md'
+"autocmd VimLeavePre *.ipynb :execute 'silent !rm -f ' . shellescape(expand('%:r') . '.md')
 " Set Vim's working directory to the directory of the current file
 autocmd BufEnter * silent! lcd %:p:h
+"***************************************************************************
 
 "curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 " https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -68,6 +91,20 @@ let g:tsuquyomi_disable_quickfix=1
 Plug 'leafgarland/typescript-vim'
 " Plugin for commenting sections 
 Plug 'numToStr/Comment.nvim'
+
+" code assistant 
+"" Dependencies of avante.nvim
+Plug 'stevearc/dressing.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'MunifTanjim/nui.nvim'
+Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': { -> avante#build() }, 'on': 'AvanteAsk' }
+
+" File explorer:
+Plug 'nvim-tree/nvim-tree.lua'
+Plug 'nvim-tree/nvim-web-devicons' " optional, for file icons
+
+" Autodetect the project root 
+Plug 'ahmedkhalf/project.nvim'
 call plug#end()
 
 lua require('Comment').setup()
@@ -78,7 +115,9 @@ nnoremap <silent> <C-s> :Files<CR>
 nnoremap <silent> <C-g> :GFiles<CR>
 nnoremap <silent> <S-s> :Buffers<CR>
 " " use ctrl f to search for text
-nnoremap <C-f> :Rg! 
+nnoremap <C-f> :Rg!<Space>
+
+
 
 "" open terminal in bottom buffer
 nnoremap <space><space> :botright split term://zsh<CR>:startinsert<CR>
@@ -108,11 +147,20 @@ nnoremap <C-a> :let @+=expand('%:p')<CR>
 nnoremap <C><CR> :VimwikiVSplitLink<CR>
 
 "" fzf.vim use ctrl-r instead of ctrl-v to open file in vertical split
-" let g:fzf_action = {
-" \ 'ctrl-c': 'vsplit',
-" \ 'ctrl-x': 'split',
-" \ 'ctrl-t': 'tabedit'
-" \ }
+let g:fzf_action = {
+\ 'ctrl-c': 'vsplit',
+\ 'ctrl-x': 'split',
+\ 'ctrl-t': 'tabedit'
+\ }
+
+command! -bang -nargs=* Rg call fzf#vim#grep(
+  \ 'rg --column --line-number --no-heading --hidden --color=always '.input('Extra flags: ', '-P '). 
+  \ ' '.shellescape(<q-args>), 1,
+  \ fzf#vim#with_preview(), <bang>0)
+" command! -bang -nargs=* Rg call fzf#vim#grep(
+"   \ 'rg --column --line-number --no-heading --hidden --color=always '.input('Extra flags: ', '').
+"   \ ' '.shellescape(<q-args>), 1,
+"   \ fzf#vim#with_preview(), <bang>0)
 
 " easier moving of code blocks
 " Try to go into visual mode (v), thenselect several lines of code here and
@@ -122,7 +170,7 @@ vnoremap > >gv  " better indentation
 
 :lua require'lspconfig'.pyright.setup{}
 :lua require("mini.completion").setup()
-:lua require'lspconfig'.tsserver.setup {}
+:lua require'lspconfig'.ts_ls.setup{}
 """"##### vimtex config
 
 " " This enables Vim's and neovim's syntax-related features. Without this, some
@@ -221,3 +269,69 @@ require'nvim-treesitter.configs'.setup {
   },
 }
 EOF
+
+" config for avante
+" Set the runtime path for avante.nvim after it's installed
+set runtimepath+=~/.local/share/nvim/plugged/avante.nvim
+lua << EOF
+  require('avante').setup({
+    provider = "claude",  -- You can choose your provider (e.g., "claude", "openai", etc.)
+    auto_suggestions_provider = "claude",
+    claude = {
+      api_key = vim.fn.getenv("ANTHROPIC_API_KEY"),  -- Fetch API key from the environment
+      endpoint = "https://api.anthropic.com",
+      model = "claude-3-5-sonnet-20240620",
+      temperature = 0.7,
+      max_tokens = 4096,
+    },
+behaviour = {
+    auto_suggestions = false, -- Experimental stage
+    auto_set_highlight_group = true,
+    auto_set_keymaps = true,
+    auto_apply_diff_after_generation = false,
+    support_paste_from_clipboard = false,
+  },
+    mappings = {
+      suggestion = {
+        accept = "<M-l>",  -- Key mapping for accepting a suggestion
+        next = "<M-]>",    -- Key mapping for moving to the next suggestion
+        prev = "<M-[>",    -- Key mapping for moving to the previous suggestion
+        dismiss = "<C-]>", -- Key mapping for dismissing a suggestion
+      }
+    },
+    windows = {
+      position = "right", -- Sidebar position
+      wrap = true,        -- Text wrapping in the sidebar
+      width = 30,         -- Sidebar width
+    },
+    submit = {
+      normal = "<CR>",
+      insert = "<C-s>",
+    },
+    hints = { enabled = true },
+  })
+EOF
+
+" config for nvim-tree
+lua << EOF 
+require('nvim-tree').setup({
+  view = {
+    adaptive_size = true,
+    side = 'left',
+  },
+  update_focused_file = {
+    enable = true,
+    update_cwd = true,
+  },
+})
+
+vim.api.nvim_set_keymap('n', '<C-n>', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
+EOF
+
+" config for project.nvim (used for finding project root)
+lua << EOF
+require('project_nvim').setup({
+  detection_methods = { 'pattern' },
+  patterns = {'.nvimroot', '.git', '_darcs', '.hg', '.bzr', '.svn', 'Makefile', 'package.json'},
+})
+vim.api.nvim_set_keymap('n', '<leader>p', ':lua require("project_nvim").open_project_fzf()<CR>', { noremap = true, silent = true })
