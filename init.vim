@@ -1,7 +1,7 @@
 set number
 set relativenumber
 set nocompatible
-filetype plugin on 
+filetype plugin indent on 
 
 " copy indentation of current line to next line
 set autoindent
@@ -20,7 +20,19 @@ au BufNewFile,BufRead *.py set sts=4 | set ts=4 | set sw=4 | set smarttab | set 
 au BufNewFile,BufRead *.tex nnoremap <leader>a :r!append_lastscreenshot<CR>
 au BufRead,BufNewFile *.md setlocal textwidth=110
 autocmd BufRead,BufNewFile *.ipynb setlocal filetype=ipynb
-autocmd BufRead,BufNewFile *.md setlocal filetype=md
+" " following 2 lines should be unnecessary if filetype detection is working
+"autocmd BufRead,BufNewFile *.md setlocal filetype=md
+"autocmd BufRead,BufNewFile *.py setfiletype python
+"" open files with default application in vim
+nnoremap go :!open <cfile><CR>
+"" open a python repl in right split
+nnoremap <leader>ts :rightbelow vsplit term://python<CR>
+
+autocmd FileType vimwiki nnoremap <buffer> <C-x> :Vimwiki2HTMLBrowse<CR>
+"" Begin: send visually selected code to repl 
+
+
+"" End
 
 "***************************************************************************
 " open ipynb files as markdown files and sync the changes back to ipynb when
@@ -28,15 +40,20 @@ autocmd BufRead,BufNewFile *.md setlocal filetype=md
 " Automatically pair .ipynb with .md when opening in neovim. 
 
 " To install Jupytext, run: !pip install jupytext
-autocmd BufReadPost,BufEnter *.ipynb :silent !jupytext --set-formats ipynb,md:markdown %
-autocmd BufReadPost *.ipynb :silent edit %:r.md | setlocal filetype=markdown
+"autocmd BufReadPost,BufEnter *.ipynb :silent !jupytext --set-formats ipynb,md:markdown %
+autocmd BufReadPost,BufEnter *.ipynb :silent !jupytext --set-formats ipynb,py:percent %
+autocmd BufReadPost *.ipynb :edit %:r.py | setlocal filetype=python
 " Mapping to switch to the corresponding .md file
 " jump to corresponding md file from a ipynb file
-autocmd FileType ipynb nnoremap <buffer> <leader>j :edit %:r.md<CR>
+autocmd FileType ipynb nnoremap <buffer> <leader>j :edit %:r.py<CR>
 " jump to corresponding ipynb file from an md file
-autocmd FileType md nnoremap <buffer> <leader>j :edit %:r.ipynb<CR>
+autocmd FileType py nnoremap <buffer> <leader>j :edit %:r.ipynb<CR>
 " Sync changes from .md back to .ipynb when saving
-autocmd BufWritePost *.md :silent !jupytext --sync %
+" not robust
+autocmd BufWritePost *.py  :!jupytext --sync %
+nnoremap <leader>s :!jupytext --sync %<CR>
+nnoremap <leader>sd :!jupytext --sync %<CR>:!nbdev_export<CR>
+"autocmd BufWritePost * if &filetype ==# 'python' | silent !jupytext --sync % | endif
 
 " (Optional) Automatically remove the .md file when closing the .ipynb file
 "autocmd BufWinLeave *.ipynb :execute 'silent !rm -f ' . expand('%:r') . '.md'
@@ -66,14 +83,18 @@ let g:vimwiki_list = [{'path': expand('$HOME/learning/vimwiki/'),
   \ 'path_html': '~/learning/vimwiki/html/',
   \ 'syntax': 'markdown',
   \ 'ext': '.md',
+  \ 'name': 'main',
   \ 'html_ext': '.html',
   \ 'custom_wiki2html': expand('$HOME/bin/wiki2html.sh')},
   \ {'path': expand('$HOME/prepos/planning/_posts/'),
   \ 'path_html': '~/learning/vimwiki/html/',
   \ 'syntax': 'markdown',
   \ 'ext': '.md',
+  \ 'name': 'planning',
   \ 'html_ext': '.html',
   \ 'custom_wiki2html': expand('$HOME/bin/wiki2html.sh')}]
+
+let g:vimwiki_global_ext = 1
 Plug 'mzlogin/vim-markdown-toc'
 Plug 'chrisbra/csv.vim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
@@ -84,9 +105,6 @@ Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'ternjs/tern_for_vim', {'do': 'npm install'}
 Plug 'moll/vim-node'
 
-" Plugins for TypeScript
-Plug 'Quramy/tsuquyomi', {'do': 'npm install -g typescript'}
-let g:tsuquyomi_disable_quickfix=1
 "let g:syntastic_typescript_checkers=['tsuquyomi']
 Plug 'leafgarland/typescript-vim'
 " Plugin for commenting sections 
@@ -94,10 +112,18 @@ Plug 'numToStr/Comment.nvim'
 
 " code assistant 
 "" Dependencies of avante.nvim
+" Deps
 Plug 'stevearc/dressing.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'MunifTanjim/nui.nvim'
-Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': { -> avante#build() }, 'on': 'AvanteAsk' }
+
+" Optional deps
+Plug 'HakonHarnes/img-clip.nvim'
+Plug 'zbirenbaum/copilot.lua'
+
+" Yay, pass source=true if you want to build from source
+Plug 'yetone/avante.nvim', { 'do': 'make' }
+" autocmd! User avante.nvim lua require('avante_lib').load()
 
 " File explorer:
 Plug 'nvim-tree/nvim-tree.lua'
@@ -105,12 +131,23 @@ Plug 'nvim-tree/nvim-web-devicons' " optional, for file icons
 
 " Autodetect the project root 
 Plug 'ahmedkhalf/project.nvim'
+
+
+" repl
+" dep of NotebookNavigator:
+Plug 'echasnovski/mini.comment'
+Plug 'hkupty/iron.nvim'
+Plug 'anuvyklack/hydra.nvim'
+Plug 'GCBallesteros/NotebookNavigator.nvim'
+Plug 'echasnovski/mini.hipatterns'
 call plug#end()
 
 lua require('Comment').setup()
 "" Key mappings
 " fzf
 " " use ctrl s to show Files etc
+" Set the default command for fzf
+let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --glob "!dist/*"'
 nnoremap <silent> <C-s> :Files<CR>
 nnoremap <silent> <C-g> :GFiles<CR>
 nnoremap <silent> <S-s> :Buffers<CR>
@@ -123,6 +160,7 @@ nnoremap <C-f> :Rg!<Space>
 
 nnoremap <space><space> :botright split term://zsh<CR>:startinsert<CR>
 
+"" activate virtual environment in vim terminal
 nnoremap <space>v :call feedkeys("i source $VIRTUAL_ENV/bin/activate\<lt>CR>")<CR>
 "" close the terminal (but keep contents)
 tnoremap <space><space> <C-\><C-N>:stopinsert<CR>:hide<CR>
@@ -146,6 +184,17 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-h> <C-w>h
 "" copy absolute path to current buffer to system clipboard 
 nnoremap <C-a> :let @+=expand('%:p')<CR>
+
+" Automatically detect and activate any virtual environment ending with 'env'
+autocmd FileType python,markdown if len(globpath(getcwd(), '*/env/bin/python')) > 0 | let g:python3_host_prog = globpath(getcwd(), '*/env/bin/python') | endif
+
+
+
+" Check which Python interpreter is active
+nnoremap <leader>pe :echo system('which python')<CR>
+
+" Use a key mapping to toggle filetype between markdown and python.markdown when needed
+autocmd FileType markdown,vimwiki nnoremap <leader>tp :set filetype=python.markdown<CR>
 
 
 "" vim wiki - ctrl - enter to open link in vertical split:
@@ -174,8 +223,16 @@ vnoremap < <gv  " better indentation
 vnoremap > >gv  " better indentation
 
 :lua require'lspconfig'.pyright.setup{}
-:lua require("mini.completion").setup()
-:lua require'lspconfig'.ts_ls.setup{}
+" "":lua require'lspconfig'.jedi_language_server.setup{}
+" :lua require("mini.completion").setup()
+" :lua require'lspconfig'.ts_ls.setup{}
+:lua require('lspconfig').ts_ls.setup{}
+" local lspconfig = require('lspconfig')
+"
+" " Python
+" :lua lspconfig.pyright.setup{}
+" " TypeScript
+" :lua lspconfig.tsserver.setup{}
 """"##### vimtex config
 
 " " This enables Vim's and neovim's syntax-related features. Without this, some
@@ -214,7 +271,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
     vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
     vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+    vim.keymap.set('i', '<C-s>', vim.lsp.buf.signature_help, opts)
     vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
     vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
     vim.keymap.set('n', '<space>wl', function()
@@ -281,14 +338,14 @@ EOF
 " Set the runtime path for avante.nvim after it's installed
 set runtimepath+=~/.local/share/nvim/plugged/avante.nvim
 lua << EOF
+  require('avante_lib').load()  -- Load avante_lib first
   require('avante').setup({
     provider = "claude",  -- You can choose your provider (e.g., "claude", "openai", etc.)
     auto_suggestions_provider = "claude",
     claude = {
-      api_key = vim.fn.getenv("ANTHROPIC_API_KEY"),  -- Fetch API key from the environment
       endpoint = "https://api.anthropic.com",
       model = "claude-3-5-sonnet-20240620",
-      temperature = 0.7,
+      temperature = 0.0,
       max_tokens = 4096,
     },
 behaviour = {
@@ -342,3 +399,125 @@ require('project_nvim').setup({
   patterns = {'.nvimroot', '.git', '_darcs', '.hg', '.bzr', '.svn', 'Makefile', 'package.json'},
 })
 vim.api.nvim_set_keymap('n', '<leader>p', ':lua require("project_nvim").open_project_fzf()<CR>', { noremap = true, silent = true })
+EOF
+
+
+
+
+
+" Configure Notebook Navigator
+lua << EOF
+local nn = require('notebook-navigator')
+nn.setup({
+  activate_hydra_keys = "<leader>h",
+  cell_markers = {
+    python = "# %%",
+  },
+  syntax_highlight = true,
+})
+EOF
+
+" Key mappings for Notebook Navigator
+nnoremap ]h :lua require('notebook-navigator').move_cell('d')<CR>
+nnoremap [h :lua require('notebook-navigator').move_cell('u')<CR>
+nnoremap <leader>X :lua require('notebook-navigator').run_cell()<CR>
+nnoremap <leader>x :lua require('notebook-navigator').run_and_move()<CR>
+
+" Optional: Enable cell marker highlighting with 'mini.hipatterns'
+lua << EOF
+require('mini.hipatterns').setup({
+  highlighters = {
+    cells = require('notebook-navigator').minihipatterns_spec,
+  }
+})
+EOF
+
+" Optional: Enable code cell text objects with 'mini.ai'
+lua << EOF
+require('mini.ai').setup({
+  custom_textobjects = {
+    h = require('notebook-navigator').miniai_spec,
+  }
+})
+EOF
+
+" Optional: Configure iron.nvim for REPL interaction
+lua << EOF
+require('iron.core').setup({
+  config = {
+    repl_definition = {
+      python = {
+        command = {"ipython", "--no-autoindent"}
+      },
+    },
+    repl_open_cmd = 'vertical botright 80 split',
+  },
+
+keymaps = {
+  -- Other key mappings...
+  clear = "<space>cl",
+},
+})
+EOF
+" Map <leader>q to hide the REPL window with IronHide, but only for Python files
+autocmd FileType python nnoremap <buffer> <leader>q :IronHide<CR>
+
+" Function to close all buffers except the current one
+function! CloseOtherBuffers()
+  let current_buf = bufnr('%')
+  for buf in getbufinfo({'bufloaded': 1})
+    if buf.bufnr != current_buf
+      let is_modified = getbufvar(buf.bufnr, '&modified')
+      let buf_type = getbufvar(buf.bufnr, '&buftype')
+
+      if buf_type ==# 'terminal'
+        " Force delete terminal buffers
+        execute 'bd! ' . buf.bufnr
+      elseif is_modified == 0
+        " Delete unmodified buffers
+        execute 'bd ' . buf.bufnr
+      endif
+    endif
+  endfor
+endfunction
+
+" Create a command to invoke the function
+command! CloseOtherBuffers call CloseOtherBuffers()
+
+" Map <leader>c to the command in normal mode
+nnoremap <leader>c :CloseOtherBuffers<CR>
+
+let g:vimwiki_global_ext = 1
+function! OpenCrossWikiLink()
+    let l:link = expand('<cfile>')
+
+    " Debugging: Print the link Vimwiki thinks you're opening
+    echo "Original link: " . l:link
+
+    " Handle absolute paths
+    if l:link =~ '^/'
+        if filereadable(l:link)
+            execute 'e ' . l:link
+        else
+            echo "File does not exist: " . l:link
+        endif
+    else
+        " For other links, fall back to default Vimwiki behavior
+        execute 'VimwikiFollowLink'
+    endif
+endfunction
+
+autocmd FileType vimwiki nnoremap <silent> <CR> :call OpenCrossWikiLink()<CR>
+
+function! ToggleVimwikiIndex()
+    " Check the current wiki number
+    let current_wiki = vimwiki#vars#get_wikilocal('wiki_nr')
+    " Toggle between the two indices
+    if current_wiki == 1
+        execute 'VimwikiIndex 2'
+    else
+        execute 'VimwikiIndex 1'
+    endif
+endfunction
+
+nnoremap <leader>wi :call ToggleVimwikiIndex()<CR>
