@@ -40,14 +40,17 @@ autocmd FileType vimwiki nnoremap <buffer> <C-x> :Vimwiki2HTMLBrowse<CR>
 " Automatically pair .ipynb with .md when opening in neovim. 
 
 " To install Jupytext, run: !pip install jupytext
-"autocmd BufReadPost,BufEnter *.ipynb :silent !jupytext --set-formats ipynb,md:markdown %
 autocmd BufReadPost,BufEnter *.ipynb :silent !jupytext --set-formats ipynb,py:percent %
+" Mapping to manually sync .ipynb and .py with Jupytext
+nnoremap <leader>js :silent !jupytext --set-formats ipynb,py:percent %<CR>
 autocmd BufReadPost *.ipynb :edit %:r.py | setlocal filetype=python
-" Mapping to switch to the corresponding .md file
-" jump to corresponding md file from a ipynb file
+" jump to corresponding py file from a ipynb file
 autocmd FileType ipynb nnoremap <buffer> <leader>j :edit %:r.py<CR>
+" <leader>j doesn't always work
+autocmd FileType ipynb nnoremap <buffer> <leader>e :edit %:r.py<CR> | setlocal filetype=python
 " jump to corresponding ipynb file from an md file
-autocmd FileType py nnoremap <buffer> <leader>j :edit %:r.ipynb<CR>
+autocmd FileType py nnoremap <buffer> <leader>n :edit %:r.ipynb<CR>
+
 " Sync changes from .md back to .ipynb when saving
 " not robust
 autocmd BufWritePost *.py  :!jupytext --sync %
@@ -198,7 +201,7 @@ autocmd FileType markdown,vimwiki nnoremap <leader>tp :set filetype=python.markd
 
 
 "" vim wiki - ctrl - enter to open link in vertical split:
-nnoremap <C><CR> :VimwikiVSplitLink<CR>
+nnoremap <C-c> :VimwikiVSplitLink<CR>
 
 "" fzf.vim use ctrl-r instead of ctrl-v to open file in vertical split
 let g:fzf_action = {
@@ -380,7 +383,7 @@ EOF
 lua << EOF 
 require('nvim-tree').setup({
   view = {
-    adaptive_size = true,
+    adaptive_size = false,
     side = 'left',
   },
   update_focused_file = {
@@ -521,3 +524,60 @@ function! ToggleVimwikiIndex()
 endfunction
 
 nnoremap <leader>wi :call ToggleVimwikiIndex()<CR>
+
+function! WrapRiseSlide() range
+    execute a:firstline . "put ='<-- #region slideshow={\"slide_type\": \"slide\"} -->'"
+    execute a:lastline + 1 . "put ='<-- #endregion -->'"
+endfunction
+command! -range WrapRiseSlide <line1>,<line2>call WrapRiseSlide()
+
+function! ConvertMostRecentDocx()
+  " Determine OS and set downloads path accordingly
+  let downloads_dir = ''
+  if has('mac')
+    let downloads_dir = expand('~/Downloads')
+  elseif has('unix')
+    let downloads_dir = expand('~/Downloads')
+  elseif has('win32') || has('win64')
+    let downloads_dir = expand('~/Downloads')
+    " Alternative for Windows: 'C:/Users/USERNAME/Downloads'
+  endif
+
+  " Find the most recent .docx file
+  let cmd = ''
+  if has('mac') || has('unix')
+    let cmd = 'find ' . downloads_dir . ' -name "*.docx" -type f -printf "%T@ %p\n" | sort -n | tail -1 | cut -f2- -d" "'
+  elseif has('win32') || has('win64')
+    let cmd = 'dir /b /o:-d "' . downloads_dir . '\*.docx" | head -1'
+  endif
+  
+  let latest_file = system(cmd)
+  let latest_file = substitute(latest_file, '\n\+$', '', '') " Remove trailing newlines
+  
+  if empty(latest_file)
+    echo "No .docx files found in downloads folder"
+    return
+  endif
+  
+  " Create temp file for markdown output
+  let temp_md = tempname() . '.md'
+  
+  " Convert to markdown using pandoc
+  let pandoc_cmd = 'pandoc -f docx -t markdown "' . latest_file . '" -o "' . temp_md . '"'
+  echo "Converting: " . latest_file
+  call system(pandoc_cmd)
+  
+  " Read the markdown content
+  let md_content = readfile(temp_md)
+  
+  " Insert at cursor position
+  call append(line('.'), md_content)
+  
+  " Clean up
+  call delete(temp_md)
+  
+  echo "Converted and inserted content from: " . latest_file
+endfunction
+
+" Add a convenient mapping
+nnoremap <leader>cw :call ConvertMostRecentDocx()<CR>
