@@ -1,12 +1,12 @@
 echo "to use this on a new computer you are going to need to add a ssh key from that computer to your personal github account"
-#echo "installing pre reqs for homebrew"
-#sudo apt-get install build-essential procps curl file git
-#echo "installing homebrew"
-#/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-#(echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> $HOME/.bashrc
-#    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+echo "installing pre reqs for homebrew"
+sudo apt-get install build-essential procps curl file git
+echo "installing homebrew"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+(echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> $HOME/.bashrc
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-#brew install gcc
+brew install gcc
 #brew install zsh
 #echo "make zsh your default shell"
 
@@ -16,14 +16,14 @@ echo "to use this on a new computer you are going to need to add a ssh key from 
 #echo "then do 'chsh -s /home/linuxbrew/.linuxbrew/Cellar/zsh/5.9/bin/zsh' to make zsh your default shell"
 
 #ZSH_PATH=$(find /home/linuxbrew/.linuxbrew/ -type f -name zsh | head -n 1) && echo "export PATH=\"$(dirname $ZSH_PATH):\$PATH\"" >> ~/.bashrc && source ~/.bashrc
-#cd 
-#mkdir .dotfiles
-#cd .dotfiles
-#echo "downloading .zshrc from github and adding a symlink to it"
-#git clone https://gist.github.com/234quix/873394f256ab3514f1400eeed59f90f6
+cd 
+mkdir .dotfiles
+cd .dotfiles
+echo "downloading .zshrc from github and adding a symlink to it"
+git clone https://gist.github.com/234quix/873394f256ab3514f1400eeed59f90f6
 # make a symlink from ~/.zshrc to .dotfiles/../.zshrc
-#cd 
-#ln -s $HOME/.dotfiles/873394f256ab3514f1400eeed59f90f6/.zshrc ~/.zshrc
+cd 
+ln -s $HOME/.dotfiles/873394f256ab3514f1400eeed59f90f6/.zshrc ~/.zshrc
 
 #echo "setting up oh-my-zsh"
 #zsh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -32,10 +32,10 @@ echo "to use this on a new computer you are going to need to add a ssh key from 
 #mv ~/.zshrc ~/zshrc_oh_my_zsh_generated
 #ln -s $HOME/.dotfiles/873394f256ab3514f1400eeed59f90f6/.zshrc ~/.zshrc
 
-#echo "zsh plugins: zsh-syntax-highlighting"
-#git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-#echo "zsh-autosuggestions"
-#git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+echo "zsh plugins: zsh-syntax-highlighting"
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+echo "zsh-autosuggestions"
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
 #echo "powerlevel10k: first go to https://github.com/romkatv/powerlevel10k?tab=readme-ov-file#meslo-nerd-font-patched-for-powerlevel10k and install required fonts (optional but recommended"
 #brew install fontconfig
@@ -46,69 +46,70 @@ echo "to use this on a new computer you are going to need to add a ssh key from 
 #fc-cache -fv
 #git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 
-#echo "installing ripgrep"
-#brew install ripgrep
+echo "installing ripgrep"
+brew install ripgrep
 #
 ## neovim
-#brew install neovim
+brew install neovim
 echo "install vim plug"
-#curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-#    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-#echo "install node, needed for neovim config..."
-#sudo apt update
-#echo "installing node.js v18"
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+echo "install node, needed for neovim config..."
+sudo apt update
+echo "installing node.js v18"
 #
-#curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-#sudo apt install -y nodejs  # For Debian/Ubuntu-based systems
-#echo "verify installation... should see v18.20.4"
-#node -v
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs  # For Debian/Ubuntu-based systems
+echo "verify installation... should see v18.20.4"
+node -v
 echo "now install your vim plugins.. :PlugInstall etc"
 echo "vim config..."
-#cd 
-#mkdir -p ~/.config/nvim
-#git clone git@github.com:234quix/dotfiles.git
-#ln -s ~/dotfiles/init.vim ~/.config/nvim/init.vim
+cd 
+mkdir -p ~/.config/nvim
+ln -s ~/dotfiles/init.vim ~/.config/nvim/init.vim
+echo "installing vimplug"
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 ## allow neovim to read from system clipboard
-#brew install xclip
+brew install xclip
 ## tmux
-#echo "tmux..."
-#brew install tmux
-#git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+echo "tmux..."
+brew install tmux
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 #
 ## fzf
-#echo "fzf..."
-#brew install fzf
+echo "fzf..."
+brew install fzf
 ## To install useful key bindings and fuzzy completion:
-#echo "...and key bindings"
-#$(brew --prefix)/opt/fzf/install
-#
-#echo "setup tmux config"
-#cd ~/.dotfiles
-#git clone https://gist.github.com/234quix/881583ca812598d8abe897b0a3343e1b
+echo "...and key bindings"
+$(brew --prefix)/opt/fzf/install
+
+echo "setup tmux config"
+cd ~/.dotfiles
+git clone https://gist.github.com/234quix/881583ca812598d8abe897b0a3343e1b
 #
 ## make a symlink from ~/.tmux.conf to .dotfiles/../tmux_conf
-#cd
-#ln -s ~/.dotfiles/881583ca812598d8abe897b0a3343e1b/tmux_conf ~/.tmux.conf
-#tmux source-file ~/.tmux.conf
+cd
+ln -s ~/.dotfiles/881583ca812598d8abe897b0a3343e1b/tmux_conf ~/.tmux.conf
+tmux source-file ~/.tmux.conf
 
-#echo "aliases..."
-#cd 
-#cd .dotfiles
-#git clone https://gist.github.com/234quix/a5052d8c0773574fc0e151fbe419c98d
-#cd
-#ln -s $HOME/.dotfiles/a5052d8c0773574fc0e151fbe419c98d/.aliases ~/.aliases
+echo "aliases..."
+cd 
+ln -s $HOME/dotfiles/aliases.dotfile ~/.aliases
 #
-#echo "pyenv..."
-#brew install pyenv
-#echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
-#echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
-#echo 'eval "$(pyenv init -)"' >> ~/.zshrc
-#echo "install python build dependencies"
-#sudo apt-get install -y build-essential zlib1g-dev libffi-dev libssl-dev liblzma-dev libbz2-dev libreadline-dev libsqlite3-dev
-#sudo apt-get install tk-dev
-#echo "installing python version - specify version:"
-#read -p "Enter the Python version to install (e.g., 3.12.2): " version
+echo "pyenv..."
+brew install pyenv
+echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.zshrc
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
+echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+echo 'eval "$(pyenv init -)"' >> ~/.zshrc
+
+echo "install python build dependencies"
+sudo apt-get install -y build-essential zlib1g-dev libffi-dev libssl-dev liblzma-dev libbz2-dev libreadline-dev libsqlite3-dev
+sudo apt-get install tk-dev
+echo "installing python version - specify version:"
+read -p "Enter the Python version to install (e.g., 3.12.2): " version
 #
 # Use the input to install the specified version of Python with pyenv
-#pyenv install "$version"
-#pyenv global "$version"
+pyenv install "$version"
+pyenv global "$version"

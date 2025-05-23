@@ -18,6 +18,25 @@ set hidden
 au BufNewFile,BufRead *.py set sts=4 | set ts=4 | set sw=4 | set smarttab | set expandtab
 "au BufNewFile,BufRead *.md set sts=4 | set ts=4 | set sw=4 | set smarttab | set expandtab
 au BufNewFile,BufRead *.tex nnoremap <leader>a :r!append_lastscreenshot<CR>
+"" open terminal in bottom buffer
+nnoremap <space><space> :botright split term://zsh<CR>:startinsert<CR>
+"" close the terminal (but keep contents)
+tnoremap <space><space> <C-\><C-N>:stopinsert<CR>:close<CR>
+"" close the terminal and kill it; k is for kill
+tnoremap <space>k <C-\><C-N>:q!<CR>
+"" move cursor to window above the terminal 
+tnoremap <C-k> <C-\><C-N><C-w>k
+"" go into insert mode in terminal
+tnoremap ii :startinsert<CR>
+"" let's remap leader key because \ is hard to reach
+let mapleader = ";"
+"" toggle between 2 buffers:
+
+"" move cursor between windows using control and arrow keys
+nnoremap <silent> <C-l> <C-w>l
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-h> <C-w>h
 au BufRead,BufNewFile *.md setlocal textwidth=110
 autocmd BufRead,BufNewFile *.ipynb setlocal filetype=ipynb
 " " following 2 lines should be unnecessary if filetype detection is working
@@ -63,7 +82,9 @@ nnoremap <leader>sd :!jupytext --sync %<CR>:!nbdev_export<CR>
 "autocmd VimLeavePre *.ipynb :execute 'silent !rm -f ' . shellescape(expand('%:r') . '.md')
 " Set Vim's working directory to the directory of the current file
 autocmd BufEnter * silent! lcd %:p:h
-"***************************************************************************
+
+" print todays date using F5
+nnoremap <F5> :r !date "+\%Y-\%m-\%d"<CR>
 
 "curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 " https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -82,22 +103,25 @@ Plug 'echasnovski/mini.nvim', { 'branch': 'stable' }
 Plug 'lervag/vimtex'
 Plug 'vimwiki/vimwiki'
 "let g:vimwiki_list = [{'path': expand('$HOME/learning/vimwiki/'), 'syntax': 'markdown', 'ext': '.md'}]
-let g:vimwiki_list = [{'path': expand('$HOME/learning/vimwiki/'),
-  \ 'path_html': '~/learning/vimwiki/html/',
-  \ 'syntax': 'markdown',
-  \ 'ext': '.md',
-  \ 'name': 'main',
-  \ 'html_ext': '.html',
-  \ 'custom_wiki2html': expand('$HOME/bin/wiki2html.sh')},
-  \ {'path': expand('$HOME/prepos/planning/_posts/'),
-  \ 'path_html': '~/learning/vimwiki/html/',
-  \ 'syntax': 'markdown',
-  \ 'ext': '.md',
-  \ 'name': 'planning',
-  \ 'html_ext': '.html',
-  \ 'custom_wiki2html': expand('$HOME/bin/wiki2html.sh')}]
-
-let g:vimwiki_global_ext = 1
+"
+if match(system('hostname'), 'lp-nduggan-29') != -1
+	let g:vimwiki_list = [{'path': expand('$HOME/learning/vimwiki/'),
+	  \ 'path_html': '~/learning/vimwiki/html/',
+	  \ 'syntax': 'markdown',
+	  \ 'ext': '.md',
+	  \ 'custom_wiki2html': expand('$HOME/bin/wiki2html_gpt.sh')},
+	  \ {'path': expand('$HOME/prepos/planning/_posts/'),
+	  \ 'path_html': '~/learning/vimwiki/html/',
+	  \ 'syntax': 'markdown',
+	  \ 'ext': '.md',
+	  \ 'custom_wiki2html': expand('$HOME/bin/wiki2html.sh')}]
+else
+	let g:vimwiki_list = [{'path': expand('$HOME/repos/vimwiki/vimwiki'),
+	  \ 'path_html': '~/repos/vimwiki/vimwiki/html/',
+	  \ 'syntax': 'markdown',
+	  \ 'ext': '.md',
+	  \ 'custom_wiki2html': 'usr/local/bin/wiki2html.sh'}]
+endif
 Plug 'mzlogin/vim-markdown-toc'
 Plug 'chrisbra/csv.vim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
@@ -294,7 +318,7 @@ EOF
 lua << EOF
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all" (the five listed parsers should always be installed)
-  ensure_installed = { "python", "vim", "vimdoc", "query", "markdown","json","sql","bash","lua" },
+  ensure_installed = { "python", "vim", "vimdoc", "query", "json", "html", "markdown", "dockerfile", "typescript", "latex", "sql", "bash","lua"},
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
