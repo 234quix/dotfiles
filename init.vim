@@ -162,11 +162,11 @@ Plug 'ahmedkhalf/project.nvim'
 
 " repl
 " dep of NotebookNavigator:
-Plug 'echasnovski/mini.comment'
-Plug 'hkupty/iron.nvim'
-Plug 'anuvyklack/hydra.nvim'
-Plug 'GCBallesteros/NotebookNavigator.nvim'
-Plug 'echasnovski/mini.hipatterns'
+" Plug 'echasnovski/mini.comment'
+" Plug 'hkupty/iron.nvim'
+" Plug 'anuvyklack/hydra.nvim', {'commit': '3ced42c'}
+" Plug 'GCBallesteros/NotebookNavigator.nvim', {'commit': '20cb6f7'}
+" Plug 'echasnovski/mini.hipatterns'
 call plug#end()
 
 lua require('Comment').setup()
@@ -433,59 +433,59 @@ EOF
 
 
 " Configure Notebook Navigator
-lua << EOF
-local nn = require('notebook-navigator')
-nn.setup({
-  activate_hydra_keys = "<leader>h",
-  cell_markers = {
-    python = "# %%",
-  },
-  syntax_highlight = true,
-})
-EOF
-
-" Key mappings for Notebook Navigator
-nnoremap ]h :lua require('notebook-navigator').move_cell('d')<CR>
-nnoremap [h :lua require('notebook-navigator').move_cell('u')<CR>
-nnoremap <leader>X :lua require('notebook-navigator').run_cell()<CR>
-nnoremap <leader>x :lua require('notebook-navigator').run_and_move()<CR>
-
-" Optional: Enable cell marker highlighting with 'mini.hipatterns'
-lua << EOF
-require('mini.hipatterns').setup({
-  highlighters = {
-    cells = require('notebook-navigator').minihipatterns_spec,
-  }
-})
-EOF
-
-" Optional: Enable code cell text objects with 'mini.ai'
-lua << EOF
-require('mini.ai').setup({
-  custom_textobjects = {
-    h = require('notebook-navigator').miniai_spec,
-  }
-})
-EOF
+" lua << EOF
+" local nn = require('notebook-navigator')
+" nn.setup({
+"   activate_hydra_keys = "<leader>h",
+"   cell_markers = {
+"     python = "# %%",
+"   },
+"   syntax_highlight = true,
+" })
+" EOF
+"
+" " Key mappings for Notebook Navigator
+" nnoremap ]h :lua require('notebook-navigator').move_cell('d')<CR>
+" nnoremap [h :lua require('notebook-navigator').move_cell('u')<CR>
+" nnoremap <leader>X :lua require('notebook-navigator').run_cell()<CR>
+" nnoremap <leader>x :lua require('notebook-navigator').run_and_move()<CR>
+"
+" " Optional: Enable cell marker highlighting with 'mini.hipatterns'
+" lua << EOF
+" require('mini.hipatterns').setup({
+"   highlighters = {
+"     cells = require('notebook-navigator').minihipatterns_spec,
+"   }
+" })
+" EOF
+"
+" " Optional: Enable code cell text objects with 'mini.ai'
+" lua << EOF
+" require('mini.ai').setup({
+"   custom_textobjects = {
+"     h = require('notebook-navigator').miniai_spec,
+"   }
+" })
+" EOF
 
 " Optional: Configure iron.nvim for REPL interaction
-lua << EOF
-require('iron.core').setup({
-  config = {
-    repl_definition = {
-      python = {
-        command = {"ipython", "--no-autoindent"}
-      },
-    },
-    repl_open_cmd = 'vertical botright 80 split',
-  },
+" lua << EOF
+" require('iron.core').setup({
+"   config = {
+"     repl_definition = {
+"       python = {
+"         command = {"ipython", "--no-autoindent"}
+"       },
+"     },
+"     repl_open_cmd = 'vertical botright 80 split',
+"   },
 
-keymaps = {
-  -- Other key mappings...
-  clear = "<space>cl",
-},
-})
-EOF
+" keymaps = {
+"   -- Other key mappings...
+"   clear = "<space>cl",
+" },
+" })
+" EOF
 " Map <leader>q to hide the REPL window with IronHide, but only for Python files
 autocmd FileType python nnoremap <buffer> <leader>q :IronHide<CR>
 
