@@ -74,6 +74,8 @@ set -g @resurrect-strategy-vim 'session'
 set -g @plugin 'seebi/tmux-colors-solarized'
 set -g @colors-solarized '256'
 
+# show results in a popup (results defined in /personal-executables
+bind-key j display-popup -E -S fg=colour6 -w 80% -h 60% "results -e"
 
 # Other examples:
 # set -g @plugin 'github_username/plugin_name'
